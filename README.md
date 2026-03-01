@@ -19,11 +19,11 @@ This project serves as the foundational MVP and technical proof-of-concept for t
 
 ## 🧭 Table of Contents
 
-- [Key Features](#%EF%B8%8F-key-features)
+- [Key Features](#-key-features)
 - [Controls](#%EF%B8%8F-controls)
-- [Tech Stack & Architecture](#%EF%B8%8F-tech-stack-&-architecture)
-- [Local Development](#%EF%B8%8F-local-development)
-- [Pictures](#%EF%B8%8F-pictures)
+- [Tech Stack & Architecture](#%EF%B8%8F-tech-stack--architecture)
+- [Local Development](#-local-development)
+- [Pictures](#-pictures)
 
 ---
 
@@ -36,7 +36,7 @@ This project serves as the foundational MVP and technical proof-of-concept for t
 - **Anti-Cheat Checkpoint System:** A quadrant-based and curve-based mathematical tracking system to prevent lap-skipping.
 - **Polished UX:** Glassmorphism UI, real-time minimap, dynamic day/night lighting cycles, interactive speedometers, and particle systems (smoke and skid marks).
 
-<p align="right">(<a href="#%EF%B8%8F-table-of-contents">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ---
 
@@ -60,7 +60,7 @@ This project serves as the foundational MVP and technical proof-of-concept for t
 - **Triangle:** Toggle Headlights
 - **X:** Horn
 
-<p align="right">(<a href="#%EF%B8%8F-table-of-contents">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ---
 
@@ -74,7 +74,7 @@ This project serves as the foundational MVP and technical proof-of-concept for t
   - Memory-efficient object pooling for particle systems.
   - Custom Kinematic Physics tailored for top-down/chase-cam arcade racing.
 
-<p align="right">(<a href="#%EF%B8%8F-table-of-contents">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ---
 
@@ -100,7 +100,7 @@ Want to run the simulator locally on your machine?
 
 5. Open the application in your browser at http://localhost:5173 .
 
-<p align="right">(<a href="#%EF%B8%8F-table-of-contents">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ---
 
@@ -114,7 +114,7 @@ Want to run the simulator locally on your machine?
   <img src="docs/assets/demonstration-2.jpg" alt="Ragent Arena Station" width="90%"/>
 </p>
 
-<p align="right">(<a href="#%EF%B8%8F-table-of-contents">back to top</a>)</p>
+<p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
 ---
 
