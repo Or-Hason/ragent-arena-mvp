@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>G923 Sim MVP</title>
+    <style>
+      body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      
+      #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: none; }
+      
+      #minimap { position: absolute; top: 20px; left: 20px; width: 150px; height: 150px; background: rgba(20, 30, 20, 0.7); border: 3px solid #555; border-radius: 50%; overflow: hidden; }
+      #minimap-track { position: absolute; top: 0; left: 0; width: 150px; height: 150px; z-index: 0; }
+      .mm-dot { position: absolute; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 5px currentColor; }
+      #mm-player { background: #ff2222; color: #ff2222; z-index: 2; }
+      #mm-npc { background: #0088ff; color: #0088ff; z-index: 1; }
+
+      .hud-text { position: absolute; top: 185px; left: 20px; color: white; font-family: monospace; font-size: 1.2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; border-left: 4px solid #ff2222; backdrop-filter: blur(2px); }
+      #player-stats { margin-bottom: 8px; font-weight: bold; }
+      #npc-stats { color: #88ccff; }
+      
+      #back-btn { position: absolute; top: 20px; right: 20px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 5px; cursor: pointer; pointer-events: auto; text-transform: uppercase; font-weight: bold; backdrop-filter: blur(4px); transition: 0.2s; display: none; }
+      #back-btn:hover { background: rgba(255,255,255,0.4); }
+
+      #speedometer { position: absolute; bottom: 30px; right: 30px; width: 160px; height: 160px; background: rgba(10, 10, 10, 0.85); border: 4px solid #444; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; }
+      #speedometer::before { content: ''; position: absolute; width: 10px; height: 10px; background: #fff; border-radius: 50%; z-index: 2; } 
+      #needle { position: absolute; bottom: 50%; left: 50%; width: 4px; height: 70px; background: #ff2222; transform-origin: bottom center; transform: rotate(-135deg); margin-left: -2px; border-radius: 2px 2px 0 0; z-index: 1; transition: transform 0.05s linear; }
+      #speed-text { position: absolute; bottom: 20px; font-family: monospace; font-size: 1.5rem; color: white; font-weight: bold; }
+      .speed-label { position: absolute; bottom: 5px; font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+      #speedo-canvas { position: absolute; top: 0; left: 0; width: 160px; height: 160px; z-index: 0; pointer-events: none; }
+
+      #menu, #end-screen { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; color: white; backdrop-filter: blur(4px); transition: opacity 0.3s ease; }
+      #end-screen { display: none; opacity: 0; pointer-events: auto; }
+      #menu { opacity: 0; }
+      
+      h1 { font-size: 4rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+      #menu h1 { color: #ff2222; }
+      #end-title { font-size: 5rem; text-shadow: 0 0 20px currentColor; }
+      
+      .settings-panel { background: rgba(20, 20, 20, 0.95); padding: 20px 40px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #444; min-width: 350px; }
+      .setting-row { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+      .setting-row label { font-size: 1.1rem; color: #ccc; }
+      .setting-row input, .setting-row select { cursor: pointer; background: #222; color: white; border: 1px solid #555; padding: 5px; border-radius: 4px; }
+      .setting-row input[type="color"] { border: none; width: 40px; height: 30px; background: none; }
+      
+      .btn { padding: 15px 50px; font-size: 1.5rem; cursor: pointer; font-weight: bold; color: white; border: none; border-radius: 8px; transition: all 0.2s ease; text-transform: uppercase; }
+      #start-btn, #restart-btn { background: #e60000; box-shadow: 0 4px 15px rgba(255,0,0,0.3); }
+      #start-btn:hover, #restart-btn:hover { background: #ff1a1a; transform: scale(1.05); }
+      #reset-btn { padding: 15px 20px; font-size: 1rem; background: transparent; color: #aaa; border: 1px solid #aaa; margin-left: 15px; }
+      #reset-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+      /* Input mode badge */
+      #input-mode-badge {
+        position: absolute;
+        bottom: 210px;
+        right: 30px;
+        width: 160px;
+        text-align: center;
+        padding: 6px 0;
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: white;
+        background: rgba(0,0,0,0.75);
+        border: 2px solid #ffaa00;
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+        pointer-events: none;
+        transition: border-color 0.4s;
+      }
+
+      /* Keyboard legend */
+      #keyboard-hint {
+        position: absolute;
+        bottom: 210px;
+        left: 20px;
+        padding: 12px 16px;
+        font-family: monospace;
+        font-size: 0.8rem;
+        color: #ddd;
+        background: rgba(0,0,0,0.75);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        backdrop-filter: blur(4px);
+        pointer-events: none;
+        line-height: 1.8;
+        opacity: 1;
+        transition: opacity 1s ease;
+      }
+      #keyboard-hint.hidden { opacity: 0; }
+      .kh-title { font-weight: bold; color: #00ccff; margin-bottom: 4px; }
+      .kbd {
+        display: inline-block;
+        padding: 1px 6px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.35);
+        border-radius: 4px;
+        font-size: 0.75rem;
+      }
+
+      /* Countdown overlay */
+      #countdown-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        display: none; justify-content: center; align-items: center;
+        z-index: 50; pointer-events: none;
+      }
+      #countdown-number {
+        font-size: 12rem; font-weight: 900; color: white;
+        text-shadow: 0 0 40px rgba(255,0,0,0.6), 0 0 80px rgba(255,0,0,0.3);
+        animation: countdown-pop 0.7s ease-out;
+      }
+      @keyframes countdown-pop {
+        0% { transform: scale(2); opacity: 0; }
+        30% { transform: scale(0.9); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <div id="minimap">
+        <canvas id="minimap-track" width="150" height="150"></canvas>
+        <div id="mm-player" class="mm-dot"></div>
+        <div id="mm-npc" class="mm-dot"></div>
+      </div>
+      <div class="hud-text">
+        <div id="player-stats">Player | Score: 0 | Laps: 0</div>
+        <div id="npc-stats">Rival | Score: 0 | Laps: 0</div>
+      </div>
+      <div id="wrong-way-warning" style="display:none; position: absolute; top: 100px; width: 100%; text-align: center; color: red; font-size: 4rem; font-weight: bold; text-shadow: 0 0 20px black; z-index: 100;">WRONG WAY</div>
+      <button id="back-btn">Pause / Menu</button>
+      <div id="speedometer">
+        <canvas id="speedo-canvas" width="160" height="160"></canvas>
+        <div id="needle"></div>
+        <div id="speed-text">0</div>
+        <div class="speed-label">KM/H</div>
+      </div>
+
+      <!-- Input mode badge (updated by JS each frame) -->
+      <div id="input-mode-badge" aria-live="polite" aria-label="Active input device">🎮 Wheel</div>
+
+      <!-- Keyboard controls legend (auto-hides after 6 s) -->
+      <div id="keyboard-hint" aria-label="Keyboard controls">
+        <div class="kh-title">⌨️ Keyboard Controls</div>
+        <div><span class="kbd">W</span> / <span class="kbd">↑</span> &nbsp;Throttle</div>
+        <div><span class="kbd">S</span> / <span class="kbd">↓</span>  / <span class="kbd">Space</span> &nbsp;Brake / Reverse</div>
+        <div><span class="kbd">A</span> / <span class="kbd">←</span> &nbsp;Steer Left</div>
+        <div><span class="kbd">D</span> / <span class="kbd">→</span> &nbsp;Steer Right</div>
+        <div><span class="kbd">H</span> &nbsp;Horn</div>
+        <div><span class="kbd">L</span> &nbsp;Lights On/Off</div>
+        <div><span class="kbd">Q</span> / <span class="kbd">E</span> &nbsp;Look Left / Right</div>
+        <div><span class="kbd">C</span> &nbsp;Look Back</div>
+      </div>
+    </div>
+    
+    <div id="menu">
+      <h1>Ragent Arena</h1>
+      <h2>(MVP Version)</h2>
+      <div class="settings-panel">
+        <div class="setting-row">
+          <label>Track:</label>
+          <select id="track-select">
+            <option value="ring">The Ring</option>
+            <option value="oval">Speedway Oval</option>
+            <option value="snake">Snake Winding</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label>Car Color:</label>
+          <input type="color" id="color-picker" value="#ff2222">
+        </div>
+        <div class="setting-row">
+          <label>Time of Day:</label>
+          <input type="range" id="time-slider" min="0" max="1" step="0.01" value="0">
+        </div>
+        <div class="setting-row">
+          <label>Engine Volume:</label>
+          <input type="range" id="vol-slider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+        <div class="setting-row">
+          <label>Steering Sensitivity:</label>
+          <input type="range" id="sens-slider" min="1" max="5" step="0.5" value="2.5">
+        </div>
+        <div class="setting-row">
+          <label>Score Target: <span id="target-label">100</span></label>
+          <input type="range" id="target-slider" min="50" max="300" step="10" value="100">
+        </div>
+      </div>
+      <div style="display:flex;">
+        <button id="start-btn" class="btn" data-first-text="Start Race" data-resume-text="Resume">Start Race</button>
+        <button id="reset-btn" class="btn">Reset Defaults</button>
+      </div>
+    </div>
+
+    <div id="end-screen">
+      <h1 id="end-title">You Win!</h1>
+      <p id="end-subtitle" style="font-size: 1.5rem; margin-bottom: 30px; color: #ccc;">First to 100 points.</p>
+      <button id="restart-btn" class="btn">Play Again</button>
+    </div>
+
+    <!-- Countdown overlay (3..2..1..GO) -->
+    <div id="countdown-overlay" aria-live="assertive" aria-label="Race countdown">
+      <div id="countdown-number"></div>
+    </div>
+    
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
