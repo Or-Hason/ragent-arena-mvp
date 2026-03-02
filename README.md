@@ -13,7 +13,12 @@ A lightweight, browser-based 3D racing simulator built from scratch using **Vani
 
 This project serves as the foundational MVP and technical proof-of-concept for the upcoming **Ragent Arena** multiplayer game. It demonstrates raw WebGL rendering, custom kinematics, procedural audio, and direct hardware integration without relying on heavy game engines like Unity or Unreal.
 
-🎮 **[Play the Live Demo Here] (Link will be added after deployment)**
+<h3 align="center">
+  🎮 <a href="https://ragent-arena-mvp.vercel.app">Play the Live Demo Here</a>
+</h3>
+
+> [!NOTE]
+> Performance is related to the GPU in use when running the browser.
 
 ---
 
@@ -118,4 +123,5 @@ Want to run the simulator locally on your machine?
 
 ---
 
-Note: This repository is a static archive of the MVP phase. The full multiplayer version (V2) is currently in development in a separate Monorepo, and it's based on entirely new engine.
+> [!NOTE]
+>  This repository is a static archive of the MVP phase. The full multiplayer version (V2) is currently in development in a separate Monorepo, and it's based on entirely new engine.
